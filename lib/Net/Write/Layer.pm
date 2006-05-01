@@ -1,16 +1,13 @@
 #
-# $Id: Layer.pm,v 1.4 2006/03/17 11:16:49 gomor Exp $
+# $Id: Layer.pm,v 1.6 2006/05/01 18:43:48 gomor Exp $
 #
 package Net::Write::Layer;
-
-require v5.6.1;
-
 use strict;
 use warnings;
 use Carp;
 
-require Class::Gomor::Hash;
-our @ISA = qw(Class::Gomor::Hash);
+require Class::Gomor::Array;
+our @ISA = qw(Class::Gomor::Array);
 
 our @AS = qw(
    dev
@@ -20,12 +17,12 @@ our @AS = qw(
    _io
    _sockaddr
 );
-
-__PACKAGE__->buildAccessorsScalar(\@AS);
+__PACKAGE__->cgBuildIndices;
+__PACKAGE__->cgBuildAccessorsScalar(\@AS);
 
 sub send {
    my $self = shift;
-   my $raw  = shift;
+   my ($raw) = @_;
 
    while (1) {
       my $ret = CORE::send($self->_io, $raw, 0, $self->_sockaddr);
@@ -42,9 +39,11 @@ sub send {
             last;
          }
          carp("@{[(caller(0))[3]]}: send: $!\n");
+         return undef;
       }
       last;
    }
+   1;
 }
 
 sub close { shift->_io->close }
@@ -88,7 +87,7 @@ Object constructor.
 
 =item B<send> (scalar)
 
-Send the raw data passed as a parameter.
+Send the raw data passed as a parameter. Returns undef on failure, true otherwise.
 
 =item B<close>
 

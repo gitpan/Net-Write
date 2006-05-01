@@ -1,5 +1,5 @@
 #
-# $Id: Write.pm,v 1.6 2006/03/19 11:24:33 gomor Exp $
+# $Id: Write.pm,v 1.7 2006/05/01 17:58:17 gomor Exp $
 #
 package Net::Write;
 
@@ -9,7 +9,7 @@ use strict;
 use warnings;
 use Carp;
 
-our $VERSION = '0.80';
+our $VERSION = '0.81';
 
 if ($^O =~ /cygwin|mswin32/i) {
    eval(

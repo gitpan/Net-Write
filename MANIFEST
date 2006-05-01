@@ -1,4 +1,9 @@
 Changes
+lib/Net/Write.pm
+lib/Net/Write/Layer.pm
+lib/Net/Write/Layer2.pm
+lib/Net/Write/Layer3.pm
+lib/Net/Write/Layer4.pm
 libnetwrite.c
 libnetwrite.h
 LICENSE
@@ -8,9 +13,4 @@ MANIFEST			This list of files
 META.yml			Module meta-data (added by MakeMaker)
 README
 t/01-use.t
-Write.pm
 Write.xs
-Write/Layer.pm
-Write/Layer2.pm
-Write/Layer3.pm
-Write/Layer4.pm

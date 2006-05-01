@@ -1,5 +1,10 @@
 Revision history for Perl extension Net::Write.
 
-0.20 Sun Mar 19 13:39:59 2006
+0.81 Mon May  1 20:38:00 CEST 2006
+   - now uses Class::Gomor::Array instead of Hash
+   - bugfix: send() returns undef on failure, true otherwise
+   - some minor code optimizations to improve speed (mostly on send())
+
+0.80 Sun Mar 19 13:39:59 2006
    - first public release
 

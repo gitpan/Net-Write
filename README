@@ -4,8 +4,8 @@ Tested ok against:
    - Linux 2.6.x (Gentoo) - Perl 5.8.5
    - Cygwin - Windows XP SP2 - Perl 5.8.7
 
-Net::Write version 0.80
-=======================
+Net::Write
+==========
 
 INSTALLATION
 
@@ -21,7 +21,7 @@ DEPENDENCIES
 This module requires these other modules and libraries:
 
   Perl v5.6.1
-  Class::Gomor::Hash
+  Class::Gomor
   Net::Pcap (under Windows only)
 
 COPYRIGHT AND LICENSE

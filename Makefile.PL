@@ -8,13 +8,13 @@ if ($^O =~ /solaris/) {
 
 WriteMakefile(
    NAME          => 'Net::Write',
-   VERSION_FROM  => 'Write.pm',
+   VERSION_FROM  => 'lib/Net/Write.pm',
+   ABSTRACT_FROM => 'lib/Net/Write.pm',
    PREREQ_PM     => {
-      Class::Gomor::Hash => '0.22',
-      Socket6            => 0,
-      Net::Pcap          => '0.12',
+      Class::Gomor => 0,
+      Socket6      => 0,
+      Net::Pcap    => '0.12',
    },
-   ABSTRACT_FROM => 'Write.pm',
    LIBS          => $libs,
    AUTHOR        => 'GomoR <perl@gomor.org>',
    OBJECT        => '$(O_FILES)',

@@ -1,10 +1,7 @@
 #
-# $Id: Layer4.pm,v 1.3 2006/03/17 15:35:58 gomor Exp $
+# $Id: Layer4.pm,v 1.4 2006/05/01 18:32:51 gomor Exp $
 #
 package Net::Write::Layer4;
-
-require v5.6.1;
-
 use strict;
 use warnings;
 use Carp;
@@ -12,6 +9,7 @@ use Carp;
 require Exporter;
 require Net::Write::Layer;
 our @ISA = qw(Exporter Net::Write::Layer);
+__PACKAGE__->cgBuildIndices;
 
 our %EXPORT_TAGS = (
    constants => [qw(
@@ -55,6 +53,8 @@ BEGIN {
    *new  = $osname->{$^O} || \&_newOther;
 }
 
+no strict 'vars';
+
 sub _newWin32 { croak("@{[(caller(0))[3]]}: not implemented under Win32\n") }
 
 sub _newOther {
@@ -65,7 +65,7 @@ sub _newOther {
    );
 
    croak("@{[(caller(0))[3]]}: you must pass `dst' parameter\n")
-      unless $self->dst;
+      unless $self->[$__dst];
 
    $self;
 }
@@ -76,20 +76,20 @@ sub open {
    croak("Must be EUID 0 to open a device for writing\n")
       if $>;
 
-   my @res = getaddrinfo($self->dst, 0, $self->family, SOCK_STREAM)
+   my @res = getaddrinfo($self->[$__dst], 0, $self->[$__family], SOCK_STREAM)
       or croak("@{[(caller(0))[3]]}: getaddrinfo: $!\n");
 
    my ($family, $saddr) = @res[0, 3] if @res >= 5;
-   $self->_sockaddr($saddr);
+   $self->[$___sockaddr] = $saddr;
 
-   socket(S, $self->family, SOCK_RAW, $self->protocol)
+   socket(S, $self->[$__family], SOCK_RAW, $self->[$__protocol])
       or croak("@{[(caller(0))[3]]}: socket: $!\n");
 
    my $fd = fileno(S) or croak("@{[(caller(0))[3]]}: fileno: $!\n");
 
    my $io = IO::Socket->new;
    $io->fdopen($fd, 'w') or croak("@{[(caller(0))[3]]}: fdopen: $!\n");
-   $self->_io($io);
+   $self->[$___io] = $io;
 
    1;
 }

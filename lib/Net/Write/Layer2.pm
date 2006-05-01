@@ -1,16 +1,14 @@
 #
-# $Id: Layer2.pm,v 1.6 2006/03/17 14:57:57 gomor Exp $
+# $Id: Layer2.pm,v 1.7 2006/05/01 18:31:41 gomor Exp $
 #
 package Net::Write::Layer2;
-
-require v5.6.1;
-
 use strict;
 use warnings;
 use Carp;
 
 require Net::Write::Layer;
 our @ISA = qw(Net::Write::Layer);
+__PACKAGE__->cgBuildIndices;
 
 BEGIN {
    my $osname = {
@@ -26,7 +24,7 @@ BEGIN {
 
 require Net::Write;
 
-sub new { shift->SUPER::new(@_) }
+no strict 'vars';
 
 sub _openOther {
    my $self = shift;
@@ -37,12 +35,12 @@ sub _openOther {
    croak("@{[(caller(0))[3]]}: you dit not specify dev attribute\n")
       unless $self->dev;
 
-   my $fd = Net::Write::netwrite_open($self->dev)
+   my $fd = Net::Write::netwrite_open($self->[$__dev])
       or croak("@{[(caller(0))[3]]}: netwrite_open: @{[$self->dev]}: $!\n");
 
    my $io = IO::Socket->new;
    $io->fdopen($fd, 'w') or croak("@{[(caller(0))[3]]}: fdopen: $!\n");
-   $self->_io($io);
+   $self->[$___io] = $io;
 
    1;
 }
@@ -52,7 +50,7 @@ sub _openWin32 {
 
    my $err;
    my $pd = Net::Pcap::open_live(
-      $self->dev,
+      $self->[$__dev],
       1514,
       0,
       1000,
@@ -62,20 +60,20 @@ sub _openWin32 {
       croak("@{[(caller(0))[3]]}: open_live: @{[$self->dev]}: $!\n");
    }
 
-   $self->_io($pd);
+   $self->[$___io] = $pd;
 
    1;
 }
 
 sub _sendLinux {
    my $self = shift;
-   my $raw  = shift;
+   my ($raw) = @_;
 
    # Here is the Linux dirty hack (to choose outgoing device, surely)
-   my $sin = pack('S a14', 0, $self->dev);
+   my $sin = pack('S a14', 0, $self->[$__dev]);
 
    while (1) {
-      my $ret = CORE::send($self->_io, $raw, 0, $sin);
+      my $ret = CORE::send($self->[$___io], $raw, 0, $sin);
       unless ($ret) {
          if ($!{ENOBUFS}) {
             $self->debugPrint(2, "send: got ENOBUFS, sleeping 1 second");
@@ -87,17 +85,19 @@ sub _sendLinux {
             last;
          }
          carp("@{[(caller(0))[3]]}: send: $!\n");
+         return undef;
       }
       last;
    }
+   1;
 }
 
 sub _sendOther {
    my $self = shift;
-   my $raw  = shift;
+   my ($raw) = @_;
 
    while (1) {
-      my $ret = $self->_io->syswrite($raw, length($raw));
+      my $ret = $self->[$___io]->syswrite($raw, length($raw));
       unless ($ret) {
          if ($!{ENOBUFS}) {
             $self->debugPrint(2, "syswrite: got ENOBUFS, sleeping 1 second");
@@ -109,22 +109,27 @@ sub _sendOther {
             last;
          }
          carp("@{[(caller(0))[3]]}: syswrite: $!\n");
+         return undef;
       }
       last;
    }
+   1;
 }
 
 sub _sendWin32 {
    my $self = shift;
-   my $raw  = shift;
+   my ($raw) = @_;
 
-   if (Net::Pcap::sendpacket($self->_io, $raw) < 0) {
-      carp("@{[(caller(0))[3]]}: send: ". Net::Pcap::geterr($self->_io). "\n");
+   if (Net::Pcap::sendpacket($self->[$___io], $raw) < 0) {
+      carp("@{[(caller(0))[3]]}: send: ".Net::Pcap::geterr($self->[$___io]).
+           "\n");
+      return undef;
    }
+   1;
 }
 
-sub _closeWin32 { Net::Pcap::close(shift->_io) }
-sub _closeOther { shift->SUPER::close(@_)      }
+sub _closeWin32 { Net::Pcap::close(shift->[$___io]) }
+sub _closeOther { shift->SUPER::close(@_)           }
 
 1;
 
