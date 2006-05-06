@@ -1,5 +1,8 @@
 Revision history for Perl extension Net::Write.
 
+0.82 Sat May  6 18:07:16 CEST 2006
+   - bugfix: call to debugPrint() renamed to cgDebugPrint()
+
 0.81 Mon May  1 20:38:00 CEST 2006
    - now uses Class::Gomor::Array instead of Hash
    - bugfix: send() returns undef on failure, true otherwise

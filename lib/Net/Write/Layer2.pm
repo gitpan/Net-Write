@@ -1,5 +1,5 @@
 #
-# $Id: Layer2.pm,v 1.7 2006/05/01 18:31:41 gomor Exp $
+# $Id: Layer2.pm,v 1.8 2006/05/06 16:07:48 gomor Exp $
 #
 package Net::Write::Layer2;
 use strict;
@@ -76,12 +76,12 @@ sub _sendLinux {
       my $ret = CORE::send($self->[$___io], $raw, 0, $sin);
       unless ($ret) {
          if ($!{ENOBUFS}) {
-            $self->debugPrint(2, "send: got ENOBUFS, sleeping 1 second");
+            $self->cgDebugPrint(2, "send: got ENOBUFS, sleeping 1 second");
             sleep 1;
             next;
          }
          elsif ($!{EHOSTDOWN}) {
-            $self->debugPrint(2, "send: host is down");
+            $self->cgDebugPrint(2, "send: host is down");
             last;
          }
          carp("@{[(caller(0))[3]]}: send: $!\n");
@@ -100,12 +100,12 @@ sub _sendOther {
       my $ret = $self->[$___io]->syswrite($raw, length($raw));
       unless ($ret) {
          if ($!{ENOBUFS}) {
-            $self->debugPrint(2, "syswrite: got ENOBUFS, sleeping 1 second");
+            $self->cgDebugPrint(2, "syswrite: got ENOBUFS, sleeping 1 second");
             sleep 1;
             next;
          }
          elsif ($!{EHOSTDOWN}) {
-            $self->debugPrint(2, "syswrite: host is down");
+            $self->cgDebugPrint(2, "syswrite: host is down");
             last;
          }
          carp("@{[(caller(0))[3]]}: syswrite: $!\n");

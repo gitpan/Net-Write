@@ -1,5 +1,5 @@
 #
-# $Id: Layer.pm,v 1.6 2006/05/01 18:43:48 gomor Exp $
+# $Id: Layer.pm,v 1.7 2006/05/06 16:07:48 gomor Exp $
 #
 package Net::Write::Layer;
 use strict;
@@ -28,14 +28,14 @@ sub send {
       my $ret = CORE::send($self->_io, $raw, 0, $self->_sockaddr);
       unless ($ret) {
          if ($!{ENOBUFS}) {
-            $self->debugPrint(
+            $self->cgDebugPrint(
                2, "send: ENOBUFS returned, sleeping for 1 second"
             );
             sleep 1;
             next;
          }
          elsif ($!{EHOSTDOWN}) {
-            $self->debugPrint(2, "send: host is down");
+            $self->cgDebugPrint(2, "send: host is down");
             last;
          }
          carp("@{[(caller(0))[3]]}: send: $!\n");
