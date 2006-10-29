@@ -1,5 +1,5 @@
 #
-# $Id: Layer2.pm,v 1.8 2006/05/06 16:07:48 gomor Exp $
+# $Id: Layer2.pm,v 1.9 2006/10/29 13:27:11 gomor Exp $
 #
 package Net::Write::Layer2;
 use strict;
@@ -22,6 +22,7 @@ BEGIN {
    *close = $osname->{$^O}->[2] || \&_closeOther;
 }
 
+require IO::Socket;
 require Net::Write;
 
 no strict 'vars';

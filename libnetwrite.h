@@ -1,5 +1,5 @@
 /*
- * $Id: libnetwrite.h,v 1.1 2006/03/15 01:55:26 gomor Exp $
+ * $Id: libnetwrite.h,v 1.2 2006/10/29 13:26:53 gomor Exp $
  *
  * AUTHOR    
  * 
@@ -10,7 +10,7 @@
  * Copyright (c) 2006, Patrice <GomoR> Auffret
  *         
  * You may distribute this module under the terms of the Artistic license.
- * See Copying file in the source distribution archive.
+ * See LICENSE.Artistic file in the source distribution archive.
  */
 
 int

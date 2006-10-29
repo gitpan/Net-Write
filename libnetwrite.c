@@ -1,5 +1,5 @@
 /*
- * $Id: libnetwrite.c,v 1.5 2006/03/19 11:15:19 gomor Exp $
+ * $Id: libnetwrite.c,v 1.6 2006/10/29 13:26:53 gomor Exp $
  *
  * AUTHOR
  *
@@ -10,7 +10,7 @@
  * Copyright (c) 2006, Patrice <GomoR> Auffret
  *
  * You may distribute this module under the terms of the Artistic license.
- * See Copying file in the source distribution archive.
+ * See LICENSE.Artistic file in the source distribution archive.
  */
 
 #if defined (__FreeBSD__) || defined (__OpenBSD__) || defined (__NetBSD__)

@@ -1,5 +1,8 @@
 Revision history for Perl extension Net::Write.
 
+0.83 Sun Oct 29 14:31:31 CET 2006
+   - bugfix: in Layer2.pm, added require IO::Socket
+
 0.82 Sat May  6 18:07:16 CEST 2006
    - bugfix: call to debugPrint() renamed to cgDebugPrint()
 
