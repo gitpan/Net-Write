@@ -1,8 +1,9 @@
 Tested ok against:
 
-   - FreeBSD 6.0 - Perl 5.8.7
-   - Linux 2.6.x (Gentoo) - Perl 5.8.5
-   - Cygwin - Windows XP SP2 - Perl 5.8.7
+   - FreeBSD 6.1-RELEASE - Perl 5.8.8
+   - Linux 2.6.x (Gentoo) - Perl 5.8.8
+   - Windows XP SP2 - Perl 5.8.8
+   - OpenBSD 3.8 - Perl 5.8.6
 
 Net::Write
 ==========
@@ -21,8 +22,12 @@ DEPENDENCIES
 This module requires these other modules and libraries:
 
   Perl v5.6.1
+  Socket6
   Class::Gomor
-  Net::Pcap (under Windows only)
+  Net::Pcap
+
+You MUST have libpcap 0.9.x or WinPcap 3.1 in order for layer 2 sending 
+to work, as of Net::Write 1.00.
 
 COPYRIGHT AND LICENSE
 

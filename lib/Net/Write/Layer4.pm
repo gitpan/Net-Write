@@ -1,50 +1,16 @@
 #
-# $Id: Layer4.pm,v 1.4 2006/05/01 18:32:51 gomor Exp $
+# $Id: Layer4.pm,v 1.8 2006/11/26 18:40:35 gomor Exp $
 #
 package Net::Write::Layer4;
 use strict;
 use warnings;
 use Carp;
 
-require Exporter;
-require Net::Write::Layer;
-our @ISA = qw(Exporter Net::Write::Layer);
+use Net::Write::Layer qw(:constants);
+our @ISA = qw(Net::Write::Layer);
 __PACKAGE__->cgBuildIndices;
 
-our %EXPORT_TAGS = (
-   constants => [qw(
-      NW_AF_INET
-      NW_AF_INET6
-      NW_IPPROTO_ICMPv4
-      NW_IPPROTO_TCP
-      NW_IPPROTO_UDP
-      NW_IPPROTO_ICMPv6
-   )],
-);
-
-our @EXPORT_OK = (
-   @{$EXPORT_TAGS{constants}},
-);
-
-use Socket;
-use Socket6;
-use IO::Socket;
-
-use constant NW_AF_INET => AF_INET();
-
-use constant NW_IPPROTO_ICMPv4 => 1;
-use constant NW_IPPROTO_TCP    => 6;
-use constant NW_IPPROTO_UDP    => 17;
-use constant NW_IPPROTO_ICMPv6 => 58;
-
 BEGIN {
-   if ($^O =~ /cygwin|mswin32/i) {
-      eval('use constant NW_AF_INET6 => 23;')
-   }
-   else {
-      eval('use constant NW_AF_INET6 => AF_INET6();');
-   }
-
    my $osname = {
       cygwin  => \&_newWin32,
       MSWin32 => \&_newWin32,
@@ -55,7 +21,9 @@ BEGIN {
 
 no strict 'vars';
 
-sub _newWin32 { croak("@{[(caller(0))[3]]}: not implemented under Win32\n") }
+sub _newWin32 {
+   croak("Not possible to use layer 4 under Windows. Use layer 2 instead.\n");
+}
 
 sub _newOther {
    my $self = shift->SUPER::new(
@@ -70,30 +38,6 @@ sub _newOther {
    $self;
 }
 
-sub open {
-   my $self = shift;
-
-   croak("Must be EUID 0 to open a device for writing\n")
-      if $>;
-
-   my @res = getaddrinfo($self->[$__dst], 0, $self->[$__family], SOCK_STREAM)
-      or croak("@{[(caller(0))[3]]}: getaddrinfo: $!\n");
-
-   my ($family, $saddr) = @res[0, 3] if @res >= 5;
-   $self->[$___sockaddr] = $saddr;
-
-   socket(S, $self->[$__family], SOCK_RAW, $self->[$__protocol])
-      or croak("@{[(caller(0))[3]]}: socket: $!\n");
-
-   my $fd = fileno(S) or croak("@{[(caller(0))[3]]}: fileno: $!\n");
-
-   my $io = IO::Socket->new;
-   $io->fdopen($fd, 'w') or croak("@{[(caller(0))[3]]}: fdopen: $!\n");
-   $self->[$___io] = $io;
-
-   1;
-}
-
 1;
 
 __END__
@@ -104,18 +48,17 @@ Net::Write::Layer4 - object for a transport layer (layer 4) descriptor
 
 =head1 SYNOPSIS
 
-   use Net::Write::Layer4 qw(:constants);
+   use Net::Write::Layer qw(:constants);
+   use Net::Write::Layer4;
 
-   # To send a TCP segment to the network
-   # Encapsulated within an IPv4 network layer
    my $desc = Net::Write::Layer4->new(
-      dst      => $targetIpAddress,
+      dst      => '192.168.0.1',
       protocol => NW_IPPROTO_TCP,
       family   => NW_AF_INET,
    );
 
    $desc->open;
-   $desc->send($rawStringToNetwork);
+   $desc->send('G'x666);
    $desc->close;
 
 =head1 DESCRIPTION
@@ -126,43 +69,53 @@ This is the class for creating a layer 4 descriptor.
 
 =over 4
 
-=item B<dev>
-
-The string specifying network interface to use.
-
 =item B<dst>
 
-The target IP address we will send frames to.
+The target IPv4 or IPv6 address we will send frames to.
+
+=item B<family>
+
+Address family, see B<Net::Write::Layer> CONSTANTS section.
+
+=item B<protocol>
+
+Transport layer protocol to use, see B<Net::Write::Layer> CONSTANTS section.
 
 =back
 
 =head1 METHODS
 
-See B<Net::Write::Layer> for inherited methods.
-
-=head1 CONSTANTS
-
-Load them: use Net::Write::Layer4 qw(:constants);
-
 =over 4
 
-=item B<NW_AF_INET>
+=item B<new>
 
-=item B<NW_AF_INET6>
+Object constructor. You MUST pass a valid B<dst> attribute. Default values:
 
-Address family constants.
+protocol: NW_IPPROTO_TCP
 
-=item B<NW_IPPROTO_TCP>
+family:   NW_AF_INET
 
-=item B<NW_IPPROTO_UDP>
+=item B<open>
 
-=item B<NW_IPPROTO_ICMPv4>
+Open the interface.
 
-=item B<NW_IPPROTO_ICMPv6>
+=item B<send> (scalar)
 
-Protocol type constants.
+Send raw data to the network.
+
+=item B<close>
+
+Close the descriptor.
 
 =back
+
+=head1 CAVEATS
+
+Does not work at all under Win32 systems. They can't send frames at layer 4.
+
+=head1 SEE ALSO
+
+L<Net::Write::Layer>
 
 =head1 AUTHOR
 
@@ -173,10 +126,6 @@ Patrice E<lt>GomoRE<gt> Auffret
 Copyright (c) 2006, Patrice E<lt>GomoRE<gt> Auffret
 
 You may distribute this module under the terms of the Artistic license.
-See Copying file in the source distribution archive.
-
-=head1 RELATED MODULES
-
-L<Net::Packet>, L<Net::RawIP>, L<Net::RawSock>
+See LICENSE.Artistic file in the source distribution archive.
 
 =cut

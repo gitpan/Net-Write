@@ -1,5 +1,11 @@
 Revision history for Perl extension Net::Write.
 
+1.00 Sun Nov 26 19:41:54 CET 2006
+   - NEW: now a pure Perl module. You MUST have libpcap 0.9.x, or WinPcap 3.1
+   - UPGRADE: all constants have moved to Layer.pm
+   - examples: examples for all layers
+   - test: Test::Pod, Test::Pod::Coverage
+
 0.83 Sun Oct 29 14:31:31 CET 2006
    - bugfix: in Layer2.pm, added require IO::Socket
 

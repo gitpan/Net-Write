@@ -1,32 +1,13 @@
 #
-# $Id: Write.pm,v 1.9 2006/10/29 13:28:33 gomor Exp $
+# $Id: Write.pm,v 1.12 2006/11/26 18:40:35 gomor Exp $
 #
 package Net::Write;
+use strict;
+use warnings;
 
 require v5.6.1;
 
-use strict;
-use warnings;
-use Carp;
-
-our $VERSION = '0.83';
-
-if ($^O =~ /cygwin|mswin32/i) {
-   eval(
-      'use Net::Pcap;'
-   );
-   if ($@) { croak("Error while eval: $@\n") }
-}
-else {
-   eval(
-      'require DynaLoader;'.
-      ''.
-      'our @ISA = qw(DynaLoader);'.
-      ''.
-      'bootstrap Net::Write $VERSION;'
-   );
-   if ($@) { croak("Error while eval: $@\n") }
-}
+our $VERSION = '1.00';
 
 1;
 
@@ -34,7 +15,7 @@ __END__
 
 =head1 NAME
 
-Net::Write - an interface to open and send raw frames to network
+Net::Write - a portable interface to open and send raw data to network
 
 =head1 DESCRIPTION
 
@@ -44,7 +25,9 @@ It is possible to open a network interface to send frames at layer 2 (you craft 
 
 NOTE: not all operating systems support all layer opening. Currently, Windows only supports opening and sending at layer 2. Other Unix systems should be able to open and send at all layers.
 
-See also B<Net::Write::Layer2>, B<Net::Write::Layer3>, B<Net::Write::Layer4> for specific information on opening network interfaces at these layers.
+=head1 SEE ALSO
+
+L<Net::Write::Layer>, L<Net::Write::Layer2>, L<Net::Write::Layer3>, L<Net::Write::Layer4>
 
 =head1 AUTHOR
 
@@ -55,10 +38,6 @@ Patrice E<lt>GomoRE<gt> Auffret
 Copyright (c) 2006, Patrice E<lt>GomoRE<gt> Auffret
 
 You may distribute this module under the terms of the Artistic license.
-See Copying file in the source distribution archive.
-
-=head1 RELATED MODULES
-
-L<Net::Packet>, L<Net::RawIP>, L<Net::RawSock>
+See LICENSE.Artistic file in the source distribution archive.
 
 =cut

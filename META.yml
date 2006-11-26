@@ -1,13 +1,16 @@
-# http://module-build.sourceforge.net/META-spec.html
-#XXXXXXX This is a prototype!!!  It will change in the future!!! XXXXX#
-name:         Net-Write
-version:      0.83
-version_from: lib/Net/Write.pm
-installdirs:  site
-requires:
+--- #YAML:1.0
+name:                Net-Write
+version:             1.00
+abstract:            a portable interface to open and send raw data to network
+license:             Artistic
+generated_by:        ExtUtils::MakeMaker version 6.31
+distribution_type:   module
+requires:     
     Class::Gomor:                  0
     Net::Pcap:                     0.12
     Socket6:                       0
-
-distribution_type: module
-generated_by: ExtUtils::MakeMaker version 6.30
+meta-spec:
+    url:     http://module-build.sourceforge.net/META-spec-v1.2.html
+    version: 1.2
+author:
+    - GomoR <perl@gomor.org>

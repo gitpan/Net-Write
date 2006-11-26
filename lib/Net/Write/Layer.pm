@@ -1,14 +1,13 @@
 #
-# $Id: Layer.pm,v 1.7 2006/05/06 16:07:48 gomor Exp $
+# $Id: Layer.pm,v 1.11 2006/11/26 18:40:35 gomor Exp $
 #
 package Net::Write::Layer;
 use strict;
 use warnings;
-use Carp;
 
+require Exporter;
 require Class::Gomor::Array;
-our @ISA = qw(Class::Gomor::Array);
-
+our @ISA = qw(Exporter Class::Gomor::Array);
 our @AS = qw(
    dev
    dst
@@ -20,6 +19,92 @@ our @AS = qw(
 __PACKAGE__->cgBuildIndices;
 __PACKAGE__->cgBuildAccessorsScalar(\@AS);
 
+BEGIN {
+   my $osname = {
+      cygwin  => \&_checkWin32,
+      MSWin32 => \&_checkWin32,
+   };
+
+   *_check  = $osname->{$^O} || \&_checkOther;
+}
+
+no strict 'vars';
+
+use Socket;
+use Socket6 qw(getaddrinfo AF_INET6);
+use IO::Socket;
+use Net::Pcap;
+use Carp;
+
+use constant NW_AF_INET   => AF_INET();
+use constant NW_AF_INET6  => AF_INET6();
+use constant NW_AF_UNSPEC => AF_UNSPEC();
+
+use constant NW_IPPROTO_IP     => 0;
+use constant NW_IPPROTO_ICMPv4 => 1;
+use constant NW_IPPROTO_TCP    => 6;
+use constant NW_IPPROTO_UDP    => 17;
+use constant NW_IPPROTO_ICMPv6 => 58;
+
+use constant NW_IP_HDRINCL  => 2;
+use constant NW_IPPROTO_RAW => 255;
+
+our %EXPORT_TAGS = (
+   constants => [qw(
+      NW_AF_INET
+      NW_AF_INET6
+      NW_AF_UNSPEC
+      NW_IPPROTO_IP
+      NW_IPPROTO_ICMPv4
+      NW_IPPROTO_TCP
+      NW_IPPROTO_UDP
+      NW_IPPROTO_ICMPv6
+      NW_IP_HDRINCL
+      NW_IPPROTO_RAW
+   )],
+);
+
+our @EXPORT_OK = (
+   @{$EXPORT_TAGS{constants}},
+);
+
+sub _checkWin32 { }
+
+sub _checkOther {
+   croak("Must be EUID 0 (or equivalent) to open a device for writing.\n")
+      if $>;
+}
+
+sub new { _check(); shift->SUPER::new(@_) }
+
+sub open {
+   my $self = shift;
+   my ($hdrincl) = @_;
+
+   my @res = getaddrinfo($self->[$__dst], 0, $self->[$__family], SOCK_STREAM)
+      or croak("@{[(caller(0))[3]]}: getaddrinfo: $!\n");
+
+   my ($family, $saddr) = @res[0, 3] if @res >= 5;
+   $self->[$___sockaddr] = $saddr;
+
+   socket(S, $family, SOCK_RAW, $self->[$__protocol])
+      or croak("@{[(caller(0))[3]]}: socket: $!\n");
+
+   my $fd = fileno(S) or croak("@{[(caller(0))[3]]}: fileno: $!\n");
+
+   if ($hdrincl) {
+      setsockopt(S, NW_IPPROTO_IP, NW_IP_HDRINCL, 1)
+         or croak("@{[(caller(0))[3]]}: setsockopt: $!\n");
+   }
+
+   my $io = IO::Socket->new;
+   $io->fdopen($fd, 'w') or croak("@{[(caller(0))[3]]}: fdopen: $!\n");
+
+   $self->[$___io] = $io;
+
+   1;
+}
+
 sub send {
    my $self = shift;
    my ($raw) = @_;
@@ -28,34 +113,24 @@ sub send {
       my $ret = CORE::send($self->_io, $raw, 0, $self->_sockaddr);
       unless ($ret) {
          if ($!{ENOBUFS}) {
-            $self->cgDebugPrint(
-               2, "send: ENOBUFS returned, sleeping for 1 second"
-            );
+            $self->cgDebugPrint(2, "ENOBUFS returned, sleeping for 1 second");
             sleep 1;
             next;
          }
          elsif ($!{EHOSTDOWN}) {
-            $self->cgDebugPrint(2, "send: host is down");
+            $self->cgDebugPrint(2, "host is down");
             last;
          }
-         carp("@{[(caller(0))[3]]}: send: $!\n");
+         carp("@{[(caller(0))[3]]}: $!\n");
          return undef;
       }
       last;
    }
+
    1;
 }
 
 sub close { shift->_io->close }
-
-sub DESTROY {
-   my $self = shift;
-
-   if ($self->_io) {
-      $self->close;
-      $self->_io(undef);
-   }
-}
 
 1;
 
@@ -63,19 +138,39 @@ __END__
 
 =head1 NAME
 
-Net::Write::Layer - base class for all LayerN modules
+Net::Write::Layer - base class and constants
+
+=head1 SYNOPSIS
+
+   use Net::Write::Layer qw(:constants);
 
 =head1 DESCRIPTION
 
 This is the base class for B<Net::Write::Layer2>, B<Net::Write::Layer3> and B<Net::Write::Layer4> modules.
 
-It just provides those layers with inheritable attributes and methods.
-
-A descriptor is required when you want to send frames over network, this module just create this descriptor, and give the programmer methods to write to the network.
+It just provides those layers with inheritable attributes, methods and constants.
 
 =head1 ATTRIBUTES
 
-Attributes are specific to each LayerN module. Just see perldoc for the wanted LayerN.
+=over 4
+
+=item B<dev>
+
+Network interface to use.
+
+=item B<dst>
+
+Target IPv4 or IPv6 address.
+
+=item B<protocol>
+
+Transport layer protocol to use (TCP, UDP, ...).
+
+=item B<family>
+
+Adresse family to use (NW_AF_INET, NW_AF_INET6).
+
+=back
 
 =head1 METHODS
 
@@ -84,6 +179,10 @@ Attributes are specific to each LayerN module. Just see perldoc for the wanted L
 =item B<new>
 
 Object constructor.
+
+=item B<open>
+
+Open the descriptor, when you are ready to B<send>.
 
 =item B<send> (scalar)
 
@@ -95,6 +194,42 @@ Close the descriptor.
 
 =back
 
+=head1 CONSTANTS
+
+=over 4
+
+=item B<NW_AF_INET>
+
+=item B<NW_AF_INET6>
+
+=item B<NW_AF_UNSPEC>
+
+Address family constants, for use with B<family> attribute.
+
+=item B<NW_IPPROTO_IP>
+
+=item B<NW_IPPROTO_ICMPv4>
+
+=item B<NW_IPPROTO_TCP>
+
+=item B<NW_IPPROTO_UDP>
+
+=item B<NW_IPPROTO_ICMPv6>
+
+Transport layer protocol constants, for use with B<protocol> attribute.
+
+=item B<NW_IP_HDRINCL>
+
+=item B<NW_IPPROTO_RAW>
+
+Mostly used internally.
+
+=back
+
+=head1 SEE ALSO
+
+L<Net::Write::Layer2>, L<Net::Write::Layer3>, L<Net::Write::Layer4>
+
 =head1 AUTHOR
 
 Patrice E<lt>GomoRE<gt> Auffret
@@ -104,10 +239,6 @@ Patrice E<lt>GomoRE<gt> Auffret
 Copyright (c) 2006, Patrice E<lt>GomoRE<gt> Auffret
 
 You may distribute this module under the terms of the Artistic license.
-See Copying file in the source distribution archive.
-
-=head1 RELATED MODULES
-
-L<Net::Packet>, L<Net::RawIP>, L<Net::RawSock>
+See LICENSE.Artistic file in the source distribution archive.
 
 =cut
