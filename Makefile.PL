@@ -2,7 +2,7 @@ use ExtUtils::MakeMaker;
 
 WriteMakefile(
    NAME          => 'Net::Write',
-   LICENSE       => 'Artistic',
+   LICENSE       => 'artistic',
    VERSION_FROM  => 'lib/Net/Write.pm',
    ABSTRACT_FROM => 'lib/Net/Write.pm',
    PREREQ_PM     => {

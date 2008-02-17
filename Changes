@@ -1,5 +1,10 @@
 Revision history for Perl extension Net::Write.
 
+1.01 Sun Feb 17 19:08:15 CET 2008
+   - update: portability patches for other Unix systems (untested), concerning 
+             IP_HDRINCL constants and the like
+   - update: license string (lc(Artistic)), to make CPANTS happy
+
 1.00 Sun Nov 26 19:41:54 CET 2006
    - NEW: now a pure Perl module. You MUST have libpcap 0.9.x, or WinPcap 3.1
    - UPGRADE: all constants have moved to Layer.pm

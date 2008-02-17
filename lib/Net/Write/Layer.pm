@@ -1,5 +1,5 @@
 #
-# $Id: Layer.pm,v 1.11 2006/11/26 18:40:35 gomor Exp $
+# $Id: Layer.pm 730 2008-02-17 18:07:31Z gomor $
 #
 package Net::Write::Layer;
 use strict;
@@ -19,6 +19,60 @@ our @AS = qw(
 __PACKAGE__->cgBuildIndices;
 __PACKAGE__->cgBuildAccessorsScalar(\@AS);
 
+sub _setIpProtoIpConstant {
+   my $val = 0;
+   if (defined(&IPPROTO_IP)) {
+      $val = &IPPROTO_IP;
+   }
+   elsif ($^O eq 'darwin'
+      ||  $^O eq 'linux'
+      ||  $^O eq 'freebsd'
+      ||  $^O eq 'openbsd'
+      ||  $^O eq 'netbsd'
+      ||  $^O eq 'aix') {
+      $val = 0;
+   }
+   eval "use constant NW_IPPROTO_IP => $val;";
+}
+
+sub _setIpProtoRawConstant {
+   my $val = 255;
+   if (defined(&IPPROTO_RAW)) {
+      $val = &IPPROTO_RAW;
+   }
+   elsif ($^O eq 'darwin'
+      ||  $^O eq 'linux'
+      ||  $^O eq 'freebsd'
+      ||  $^O eq 'openbsd'
+      ||  $^O eq 'netbsd'
+      ||  $^O eq 'aix') {
+      $val = 255;
+   }
+   eval "use constant NW_IPPROTO_RAW => $val;";
+}
+
+sub _setIpHdrInclConstant {
+   my $val = 2;
+   if (defined(&IP_HDRINCL)) {
+      $val = &IP_HDRINCL;
+   }
+   elsif ($^O eq 'darwin'
+      ||  $^O eq 'freebsd'
+      ||  $^O eq 'openbsd'
+      ||  $^O eq 'netbsd'
+      ||  $^O eq 'aix'
+      ||  $^O eq 'cygwin') {
+      $val = 2;
+   }
+   elsif ($^O eq 'linux') {
+      $val = 3;
+   }
+   elsif ($^O eq 'hpux') {
+      $val = 0x1002;
+   }
+   eval "use constant NW_IP_HDRINCL => $val;";
+}
+
 BEGIN {
    my $osname = {
       cygwin  => \&_checkWin32,
@@ -26,6 +80,9 @@ BEGIN {
    };
 
    *_check  = $osname->{$^O} || \&_checkOther;
+   _setIpProtoIpConstant();
+   _setIpProtoRawConstant();
+   _setIpHdrInclConstant();
 }
 
 no strict 'vars';
@@ -40,14 +97,10 @@ use constant NW_AF_INET   => AF_INET();
 use constant NW_AF_INET6  => AF_INET6();
 use constant NW_AF_UNSPEC => AF_UNSPEC();
 
-use constant NW_IPPROTO_IP     => 0;
 use constant NW_IPPROTO_ICMPv4 => 1;
 use constant NW_IPPROTO_TCP    => 6;
 use constant NW_IPPROTO_UDP    => 17;
 use constant NW_IPPROTO_ICMPv6 => 58;
-
-use constant NW_IP_HDRINCL  => 2;
-use constant NW_IPPROTO_RAW => 255;
 
 our %EXPORT_TAGS = (
    constants => [qw(
@@ -236,7 +289,7 @@ Patrice E<lt>GomoRE<gt> Auffret
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (c) 2006, Patrice E<lt>GomoRE<gt> Auffret
+Copyright (c) 2006-2008, Patrice E<lt>GomoRE<gt> Auffret
 
 You may distribute this module under the terms of the Artistic license.
 See LICENSE.Artistic file in the source distribution archive.
