@@ -1,5 +1,8 @@
 Revision history for Perl extension Net::Write.
 
+1.02 Tue Feb 19 12:11:21 CET 2008
+   - bugfix: due to Socket6 update, AF_INET6 definition has changed
+
 1.01 Sun Feb 17 19:08:15 CET 2008
    - update: portability patches for other Unix systems (untested), concerning 
              IP_HDRINCL constants and the like

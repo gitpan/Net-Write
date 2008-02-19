@@ -1,5 +1,5 @@
 #
-# $Id: Layer.pm 730 2008-02-17 18:07:31Z gomor $
+# $Id: Layer.pm 769 2008-02-19 11:11:16Z gomor $
 #
 package Net::Write::Layer;
 use strict;
@@ -73,6 +73,19 @@ sub _setIpHdrInclConstant {
    eval "use constant NW_IP_HDRINCL => $val;";
 }
 
+sub _setAfinet6Constant {
+   use Socket6;
+   use Socket;
+   my $val = 0;
+   if (defined(&Socket6::AF_INET6)) {
+      $val = &Socket6::AF_INET6;
+   }
+   elsif (defined(&Socket::AF_INET6)) {
+      $val = &Socket::AF_INET6;
+   }
+   eval "use constant NW_AF_INET6  => $val;";
+}
+
 BEGIN {
    my $osname = {
       cygwin  => \&_checkWin32,
@@ -83,18 +96,18 @@ BEGIN {
    _setIpProtoIpConstant();
    _setIpProtoRawConstant();
    _setIpHdrInclConstant();
+   _setAfinet6Constant();
 }
 
 no strict 'vars';
 
 use Socket;
-use Socket6 qw(getaddrinfo AF_INET6);
+use Socket6 qw(getaddrinfo);
 use IO::Socket;
 use Net::Pcap;
 use Carp;
 
 use constant NW_AF_INET   => AF_INET();
-use constant NW_AF_INET6  => AF_INET6();
 use constant NW_AF_UNSPEC => AF_UNSPEC();
 
 use constant NW_IPPROTO_ICMPv4 => 1;
