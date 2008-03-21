@@ -1,5 +1,5 @@
 #
-# $Id: Layer3.pm 732 2008-02-17 18:08:47Z gomor $
+# $Id: Layer3.pm 808 2008-03-21 16:19:39Z gomor $
 #
 package Net::Write::Layer3;
 use strict;
@@ -39,6 +39,18 @@ sub _newOther {
 }
 
 sub open { shift->SUPER::open(1) }
+
+sub _setIpHdrincl {
+   my $self = shift;
+   my ($sock, $family) = @_;
+   if ($family == NW_AF_INET) {
+      return setsockopt($sock, NW_IPPROTO_IP, NW_IP_HDRINCL, 1);
+   }
+   if ($family == NW_AF_INET6) {
+      return setsockopt($sock, NW_IPPROTO_IPv6, NW_IP_HDRINCL, 1);
+   }
+   return;
+}
 
 1;
 
@@ -113,9 +125,9 @@ Close the descriptor.
 
 =head1 CAVEATS
 
-Sending IPv6 frames does not work under BSD systems. They can't do IP_HDRINCL for IPv6.
+Sending IPv6 frames does not work under BSD systems. They can't do IP_HDRINCL for IPv6. For now, only Linux supports this (at least, with a 2.6.x kernel).
 
-Does not work at all under Win32 systems. They can't send frames at layer 3.
+Does not work at all under Win32 systems. They can't send frames at layer 3 (or I don't know how to do that).
 
 =head1 SEE ALSO
 

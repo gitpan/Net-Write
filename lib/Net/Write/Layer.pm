@@ -1,5 +1,5 @@
 #
-# $Id: Layer.pm 769 2008-02-19 11:11:16Z gomor $
+# $Id: Layer.pm 808 2008-03-21 16:19:39Z gomor $
 #
 package Net::Write::Layer;
 use strict;
@@ -33,6 +33,18 @@ sub _setIpProtoIpConstant {
       $val = 0;
    }
    eval "use constant NW_IPPROTO_IP => $val;";
+}
+
+sub _setIpProtoIpv6Constant {
+   my $val = 0;
+   if (defined(&IPPROTO_IPv6)) {
+      $val = &IPPROTO_IPv6;
+   }
+   elsif ($^O eq 'linux'
+      ||  $^O eq 'freebsd') {
+      $val = 41;
+   }
+   eval "use constant NW_IPPROTO_IPv6 => $val;";
 }
 
 sub _setIpProtoRawConstant {
@@ -94,6 +106,7 @@ BEGIN {
 
    *_check  = $osname->{$^O} || \&_checkOther;
    _setIpProtoIpConstant();
+   _setIpProtoIpv6Constant();
    _setIpProtoRawConstant();
    _setIpHdrInclConstant();
    _setAfinet6Constant();
@@ -121,6 +134,7 @@ our %EXPORT_TAGS = (
       NW_AF_INET6
       NW_AF_UNSPEC
       NW_IPPROTO_IP
+      NW_IPPROTO_IPv6
       NW_IPPROTO_ICMPv4
       NW_IPPROTO_TCP
       NW_IPPROTO_UDP
@@ -153,13 +167,13 @@ sub open {
    my ($family, $saddr) = @res[0, 3] if @res >= 5;
    $self->[$___sockaddr] = $saddr;
 
-   socket(S, $family, SOCK_RAW, $self->[$__protocol])
+   socket(my $s, $family, SOCK_RAW, $self->[$__protocol])
       or croak("@{[(caller(0))[3]]}: socket: $!\n");
 
-   my $fd = fileno(S) or croak("@{[(caller(0))[3]]}: fileno: $!\n");
+   my $fd = fileno($s) or croak("@{[(caller(0))[3]]}: fileno: $!\n");
 
    if ($hdrincl) {
-      setsockopt(S, NW_IPPROTO_IP, NW_IP_HDRINCL, 1)
+      $self->_setIpHdrincl($s, $self->[$__family])
          or croak("@{[(caller(0))[3]]}: setsockopt: $!\n");
    }
 
@@ -273,6 +287,8 @@ Close the descriptor.
 Address family constants, for use with B<family> attribute.
 
 =item B<NW_IPPROTO_IP>
+
+=item B<NW_IPPROTO_IPv6>
 
 =item B<NW_IPPROTO_ICMPv4>
 

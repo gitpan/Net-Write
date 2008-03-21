@@ -17,7 +17,7 @@ my $l3 = Net::Write::Layer3->new(
 );
 
 use Net::Packet::IPv6;
-my $ip6 = Net::Packet::IPv6->new(dst => $target);
+my $ip6 = Net::Packet::IPv6->new(dst => $target, hopLimit => 3);
 $ip6->pack;
 
 use Net::Packet::TCP;
