@@ -1,5 +1,5 @@
 #
-# $Id: Layer.pm 808 2008-03-21 16:19:39Z gomor $
+# $Id: Layer.pm 1567 2008-10-19 15:49:15Z gomor $
 #
 package Net::Write::Layer;
 use strict;
@@ -72,12 +72,10 @@ sub _setIpHdrInclConstant {
       ||  $^O eq 'freebsd'
       ||  $^O eq 'openbsd'
       ||  $^O eq 'netbsd'
+      ||  $^O eq 'linux'
       ||  $^O eq 'aix'
       ||  $^O eq 'cygwin') {
       $val = 2;
-   }
-   elsif ($^O eq 'linux') {
-      $val = 3;
    }
    elsif ($^O eq 'hpux') {
       $val = 0x1002;

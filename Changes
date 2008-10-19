@@ -1,5 +1,8 @@
 Revision history for Perl extension Net::Write.
 
+1.04 Sun Oct 19 17:47:11 CEST 2008
+   - bugfix: IP_HDRINCL with IPv6 under Linux 2.6.x
+
 1.03 Fri Mar 21 17:20:00 CET 2008
    - added support for IP_HDRINCL with IPv6 raw sockets (Linux only)
    => in fact, it should have worked before, but it appears to be a regression
