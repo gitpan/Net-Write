@@ -1,3 +1,6 @@
+#
+# $Id: Makefile.PL 1636 2009-06-10 18:38:24Z gomor $
+#
 use ExtUtils::MakeMaker;
 
 WriteMakefile(
@@ -10,5 +13,5 @@ WriteMakefile(
       Socket6      => 0,
       Net::Pcap    => '0.12',
    },
-   AUTHOR        => 'GomoR <perl@gomor.org>',
+   AUTHOR        => 'GomoR <gomor-cpan_at_gomor.org>',
 );

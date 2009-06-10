@@ -1,5 +1,5 @@
 #
-# $Id: Layer.pm 1567 2008-10-19 15:49:15Z gomor $
+# $Id: Layer.pm 1636 2009-06-10 18:38:24Z gomor $
 #
 package Net::Write::Layer;
 use strict;
@@ -84,8 +84,8 @@ sub _setIpHdrInclConstant {
 }
 
 sub _setAfinet6Constant {
-   use Socket6;
-   use Socket;
+   require Socket6;
+   require Socket;
    my $val = 0;
    if (defined(&Socket6::AF_INET6)) {
       $val = &Socket6::AF_INET6;
@@ -316,7 +316,7 @@ Patrice E<lt>GomoRE<gt> Auffret
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (c) 2006-2008, Patrice E<lt>GomoRE<gt> Auffret
+Copyright (c) 2006-2009, Patrice E<lt>GomoRE<gt> Auffret
 
 You may distribute this module under the terms of the Artistic license.
 See LICENSE.Artistic file in the source distribution archive.

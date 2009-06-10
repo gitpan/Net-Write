@@ -1,5 +1,5 @@
 #
-# $Id: Layer3.pm 808 2008-03-21 16:19:39Z gomor $
+# $Id: Layer3.pm 1636 2009-06-10 18:38:24Z gomor $
 #
 package Net::Write::Layer3;
 use strict;
@@ -139,7 +139,7 @@ Patrice E<lt>GomoRE<gt> Auffret
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (c) 2006-2008, Patrice E<lt>GomoRE<gt> Auffret
+Copyright (c) 2006-2009, Patrice E<lt>GomoRE<gt> Auffret
 
 You may distribute this module under the terms of the Artistic license.
 See LICENSE.Artistic file in the source distribution archive.

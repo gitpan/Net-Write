@@ -1,5 +1,9 @@
 Revision history for Perl extension Net::Write.
 
+1.05 Wed Jun 10 20:37:44 CEST 2009
+   - bugfix: removed a warning on AF_INET6 constant declaration
+   - update: copyright notice
+
 1.04 Sun Oct 19 17:47:11 CEST 2008
    - bugfix: IP_HDRINCL with IPv6 under Linux 2.6.x
 

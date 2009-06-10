@@ -1,11 +1,11 @@
 --- #YAML:1.0
 name:                Net-Write
-version:             1.04
+version:             1.05
 abstract:            a portable interface to open and send raw data to network
 license:             artistic
 author:              
-    - GomoR <perl@gomor.org>
-generated_by:        ExtUtils::MakeMaker version 6.44
+    - GomoR <gomor-cpan_at_gomor.org>
+generated_by:        ExtUtils::MakeMaker version 6.42
 distribution_type:   module
 requires:     
     Class::Gomor:                  0
