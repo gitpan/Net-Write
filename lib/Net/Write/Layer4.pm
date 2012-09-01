@@ -1,13 +1,12 @@
 #
-# $Id: Layer4.pm 1636 2009-06-10 18:38:24Z gomor $
+# $Id: Layer4.pm 2000 2012-08-31 14:57:05Z gomor $
 #
 package Net::Write::Layer4;
 use strict;
 use warnings;
-use Carp;
 
 use Net::Write::Layer qw(:constants);
-our @ISA = qw(Net::Write::Layer);
+use base qw(Net::Write::Layer);
 __PACKAGE__->cgBuildIndices;
 
 BEGIN {
@@ -22,7 +21,9 @@ BEGIN {
 no strict 'vars';
 
 sub _newWin32 {
-   croak("Not possible to use layer 4 under Windows. Use layer 2 instead.\n");
+   print STDERR "[-] Not possible to use layer 4 under Windows. Use layer 2 ".
+                "instead.\n";
+   return;
 }
 
 sub _newOther {
@@ -30,12 +31,14 @@ sub _newOther {
       protocol => NW_IPPROTO_TCP,
       family   => NW_AF_INET,
       @_,
-   );
+   ) or return;
 
-   croak("@{[(caller(0))[3]]}: you must pass `dst' parameter\n")
-      unless $self->[$__dst];
+   if (! $self->[$__dst]) {
+      print STDERR "[-] @{[(caller(0))[3]]}: you must pass `dst' parameter\n";
+      return;
+   }
 
-   $self;
+   return $self;
 }
 
 1;
@@ -95,9 +98,11 @@ protocol: NW_IPPROTO_TCP
 
 family:   NW_AF_INET
 
+Returns undef on error.
+
 =item B<open>
 
-Open the interface.
+Open the interface. Returns undef on error.
 
 =item B<send> (scalar)
 
@@ -123,7 +128,7 @@ Patrice E<lt>GomoRE<gt> Auffret
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (c) 2006-2009, Patrice E<lt>GomoRE<gt> Auffret
+Copyright (c) 2006-2012, Patrice E<lt>GomoRE<gt> Auffret
 
 You may distribute this module under the terms of the Artistic license.
 See LICENSE.Artistic file in the source distribution archive.

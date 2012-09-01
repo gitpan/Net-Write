@@ -1,13 +1,11 @@
 #
-# $Id: Layer.pm 1636 2009-06-10 18:38:24Z gomor $
+# $Id: Layer.pm 2000 2012-08-31 14:57:05Z gomor $
 #
 package Net::Write::Layer;
 use strict;
 use warnings;
 
-require Exporter;
-require Class::Gomor::Array;
-our @ISA = qw(Exporter Class::Gomor::Array);
+use base qw(Exporter Class::Gomor::Array);
 our @AS = qw(
    dev
    dst
@@ -116,7 +114,6 @@ use Socket;
 use Socket6 qw(getaddrinfo);
 use IO::Socket;
 use Net::Pcap;
-use Carp;
 
 use constant NW_AF_INET   => AF_INET();
 use constant NW_AF_UNSPEC => AF_UNSPEC();
@@ -149,38 +146,57 @@ our @EXPORT_OK = (
 sub _checkWin32 { }
 
 sub _checkOther {
-   croak("Must be EUID 0 (or equivalent) to open a device for writing.\n")
-      if $>;
+   if ($>) {
+      print STDERR "[-] Must be EUID 0 (or equivalent) to open a device for ".
+                   "writing.\n";
+      return;
+   }
 }
 
-sub new { _check(); shift->SUPER::new(@_) }
+sub new {
+   my $self = shift->SUPER::new(
+      @_,
+   ) or return;
+
+   _check() or return;
+
+   return $self;
+}
+
+sub _croak {
+   my ($msg) = @_;
+   print STDERR "[-] $msg\n";
+   return;
+}
 
 sub open {
    my $self = shift;
    my ($hdrincl) = @_;
 
    my @res = getaddrinfo($self->[$__dst], 0, $self->[$__family], SOCK_STREAM)
-      or croak("@{[(caller(0))[3]]}: getaddrinfo: $!\n");
+      or return _croak("@{[(caller(0))[3]]}: getaddrinfo: $!");
 
    my ($family, $saddr) = @res[0, 3] if @res >= 5;
    $self->[$___sockaddr] = $saddr;
 
    socket(my $s, $family, SOCK_RAW, $self->[$__protocol])
-      or croak("@{[(caller(0))[3]]}: socket: $!\n");
+      or return _croak("@{[(caller(0))[3]]}: socket: $!");
 
-   my $fd = fileno($s) or croak("@{[(caller(0))[3]]}: fileno: $!\n");
+   my $fd = fileno($s)
+      or return _croak("@{[(caller(0))[3]]}: fileno: $!");
 
    if ($hdrincl) {
       $self->_setIpHdrincl($s, $self->[$__family])
-         or croak("@{[(caller(0))[3]]}: setsockopt: $!\n");
+         or return _croak("@{[(caller(0))[3]]}: setsockopt: $!");
    }
 
    my $io = IO::Socket->new;
-   $io->fdopen($fd, 'w') or croak("@{[(caller(0))[3]]}: fdopen: $!\n");
+   $io->fdopen($fd, 'w')
+      or return _croak("@{[(caller(0))[3]]}: fdopen: $!");
 
    $self->[$___io] = $io;
 
-   1;
+   return 1;
 }
 
 sub send {
@@ -199,13 +215,13 @@ sub send {
             $self->cgDebugPrint(2, "host is down");
             last;
          }
-         carp("@{[(caller(0))[3]]}: $!\n");
-         return undef;
+         print STDERR "[!] @{[(caller(0))[3]]}: $!\n";
+         return;
       }
       last;
    }
 
-   1;
+   return 1;
 }
 
 sub close { shift->_io->close }
@@ -256,11 +272,11 @@ Adresse family to use (NW_AF_INET, NW_AF_INET6).
 
 =item B<new>
 
-Object constructor.
+Object constructor. Returns undef on error.
 
 =item B<open>
 
-Open the descriptor, when you are ready to B<send>.
+Open the descriptor, when you are ready to B<send>. Returns undef on error.
 
 =item B<send> (scalar)
 
@@ -316,7 +332,7 @@ Patrice E<lt>GomoRE<gt> Auffret
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (c) 2006-2009, Patrice E<lt>GomoRE<gt> Auffret
+Copyright (c) 2006-2012, Patrice E<lt>GomoRE<gt> Auffret
 
 You may distribute this module under the terms of the Artistic license.
 See LICENSE.Artistic file in the source distribution archive.

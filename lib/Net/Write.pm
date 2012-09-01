@@ -1,5 +1,5 @@
 #
-# $Id: Write.pm 1636 2009-06-10 18:38:24Z gomor $
+# $Id: Write.pm 2000 2012-08-31 14:57:05Z gomor $
 #
 package Net::Write;
 use strict;
@@ -7,7 +7,7 @@ use warnings;
 
 require v5.6.1;
 
-our $VERSION = '1.05';
+our $VERSION = '1.06';
 
 1;
 
@@ -35,7 +35,7 @@ Patrice E<lt>GomoRE<gt> Auffret
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (c) 2006-2009, Patrice E<lt>GomoRE<gt> Auffret
+Copyright (c) 2006-2012, Patrice E<lt>GomoRE<gt> Auffret
 
 You may distribute this module under the terms of the Artistic license.
 See LICENSE.Artistic file in the source distribution archive.

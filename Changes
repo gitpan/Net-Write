@@ -1,5 +1,9 @@
 Revision history for Perl extension Net::Write.
 
+1.06 Sat Sep  1 12:45:09 CEST 2012
+   - update: better error handling scheme
+   - update: copyright notice
+
 1.05 Wed Jun 10 20:37:44 CEST 2009
    - bugfix: removed a warning on AF_INET6 constant declaration
    - update: copyright notice

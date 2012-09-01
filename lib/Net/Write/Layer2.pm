@@ -1,26 +1,28 @@
 #
-# $Id: Layer2.pm 1636 2009-06-10 18:38:24Z gomor $
+# $Id: Layer2.pm 2000 2012-08-31 14:57:05Z gomor $
 #
 package Net::Write::Layer2;
 use strict;
 use warnings;
 
-require Net::Write::Layer;
-our @ISA = qw(Net::Write::Layer);
+use base qw(Net::Write::Layer);
 __PACKAGE__->cgBuildIndices;
 
 no strict 'vars';
 
-use Carp;
 use Net::Pcap;
 
 sub new {
-   my $self = shift->SUPER::new(@_);
+   my $self = shift->SUPER::new(
+      @_,
+   ) or return;
 
-   croak("@{[(caller(0))[3]]}: you must pass `dev' parameter\n")
-      unless $self->[$__dev];
+   if (! $self->[$__dev]) {
+      print STDERR "[-] @{[(caller(0))[3]]}: you must pass `dev' parameter\n";
+      return;
+   }
 
-   $self;
+   return $self;
 }
 
 sub open {
@@ -35,13 +37,14 @@ sub open {
       \$err,
    );
    unless ($pd) {
-      croak("@{[(caller(0))[3]]}: Net::Pcap::open_live: @{[$self->dev]}: ".
-            "$err\n");
+      print STDERR "[-] @{[(caller(0))[3]]}: Net::Pcap::open_live: ".
+                   "@{[$self->dev]}: $err\n";
+      return;
    }
 
    $self->[$___io] = $pd;
 
-   1;
+   return 1;
 }
 
 sub send {
@@ -59,13 +62,14 @@ sub send {
             $self->cgDebugPrint(2, "host is down");
             last;
          }
-         carp("@{[(caller(0))[3]]}: ".Net::Pcap::geterr($self->[$___io])."\n");
-         return undef;
+         print STDERR "[!] @{[(caller(0))[3]]}: ".
+                      Net::Pcap::geterr($self->[$___io])."\n";
+         return;
       }
       last;
    }
 
-   1;
+   return 1;
 }
 
 sub close {
@@ -121,11 +125,11 @@ Under Windows systems, this is more complex; example:
 
 =item B<new>
 
-Object constructor. You MUST pass a valid B<dev> attribute. There is no default value.
+Object constructor. You MUST pass a valid B<dev> attribute. There is no default value. Returns undef on error.
 
 =item B<open>
 
-Open the interface.
+Open the interface. Returns undef on error.
 
 =item B<send> (scalar)
 
@@ -151,7 +155,7 @@ Patrice E<lt>GomoRE<gt> Auffret
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (c) 2006-2009, Patrice E<lt>GomoRE<gt> Auffret
+Copyright (c) 2006-2012, Patrice E<lt>GomoRE<gt> Auffret
 
 You may distribute this module under the terms of the Artistic license.
 See LICENSE.Artistic file in the source distribution archive.
