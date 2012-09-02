@@ -21,4 +21,4 @@ requires:
   Class::Gomor: 0
   Net::Pcap: 0.12
   Socket6: 0
-version: 1.06
+version: 1.07

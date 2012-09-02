@@ -1,5 +1,5 @@
 #
-# $Id: Write.pm 2000 2012-08-31 14:57:05Z gomor $
+# $Id: Write.pm 2003 2012-09-02 16:43:45Z gomor $
 #
 package Net::Write;
 use strict;
@@ -7,7 +7,7 @@ use warnings;
 
 require v5.6.1;
 
-our $VERSION = '1.06';
+our $VERSION = '1.07';
 
 1;
 

@@ -1,5 +1,5 @@
 #
-# $Id: Layer.pm 2000 2012-08-31 14:57:05Z gomor $
+# $Id: Layer.pm 2003 2012-09-02 16:43:45Z gomor $
 #
 package Net::Write::Layer;
 use strict;
@@ -143,7 +143,9 @@ our @EXPORT_OK = (
    @{$EXPORT_TAGS{constants}},
 );
 
-sub _checkWin32 { }
+sub _checkWin32 {
+   return 1;
+}
 
 sub _checkOther {
    if ($>) {
@@ -151,12 +153,14 @@ sub _checkOther {
                    "writing.\n";
       return;
    }
+
+   return 1;
 }
 
 sub new {
    my $self = shift->SUPER::new(
       @_,
-   ) or return;
+   );
 
    _check() or return;
 
